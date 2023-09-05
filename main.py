@@ -1,56 +1,36 @@
 import random
 
-# The possible moves in the game
-moves = ["rock", "paper", "scissors"]
+# Define the game options
+options = ["rock", "paper", "scissors"]
 
-# Function to randomly choose a move for the computer
-def get_computer_move():
-    return random.choice(moves)
+# Define the game function
+def play_game(request):
+    # Get player choice
+    player_choice = request.POST["choice"]
 
-# Function to check who won the game
-def get_winner(player_move, computer_move):
-    if player_move == computer_move:
-        return "tie"
-    elif (player_move == "rock" and computer_move == "scissors") or \
-        (player_move == "paper" and computer_move == "rock") or \
-        (player_move == "scissors" and computer_move == "paper"):
-        return "player"
-    else:
-        return "computer"
+    # Validate player choice
+    if player_choice not in options:
+        return {"message": "Invalid choice."}
 
-# Main function
-def main():
-    # Get the player's move
-    player_move = input("Choose your move: rock, paper, or scissors? ")
+    # Get computer choice
+    computer_choice = random.choice(options)
 
-    # Get the computer's move
-    computer_move = get_computer_move()
+    # Print choices
+    return {
+        "message": "Player: " + player_choice + ", Computer: " + computer_choice,
+        "winner": "tie" if player_choice == computer_choice else (
+            "you" if player_choice == "rock" and computer_choice == "scissors"
+            or player_choice == "paper" and computer_choice == "rock"
+            or player_choice == "scissors" and computer_choice == "paper"
+            else "computer"
+        ),
+    }
 
-    # Get the winner
-    winner = get_winner(player_move, computer_move)
+# Create an app
+app = Flask(__name__)
 
-    # Render the results in HTML
-    html = """
-    <html>
-        <head>
-            <title>Rock Paper Scissors</title>
-        </head>
-        <body>
-            <h1>Rock Paper Scissors</h1>
-            <p>You chose: <b>{player_move}</b></p>
-            <p>Computer chose: <b>{computer_move}</b></p>
-            <p>Winner: <b>{winner}</b></p>
-        </body>
-    </html>
-    """.format(
-        player_move=player_move,
-        computer_move=computer_move,
-        winner=winner
-    )
+# Add the game route
+app.route("/rock_paper_scissors")(play_game)
 
-    return html
-
-if __name__ == "__main__":
-    # Render the results in HTML and print it to the console
-    html = main()
-    print(html)
+# Run the app
+app.run()
